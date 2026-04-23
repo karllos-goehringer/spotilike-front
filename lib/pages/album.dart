@@ -1,38 +1,13 @@
 import 'package:flutter/material.dart';
+import '../class/album.dart';
+import '../class/song.dart';
 
-class Album {
-  final String title;
-  final String artist;
-  final String artUri;
-  final List<Song> songs;
-  Album({
-    required this.title,
-    required this.artist,
-    required this.artUri,
-    required this.songs,
-  });
-}
 
-class Song {
-  final int id;
-  final String title;
-  final String duration;
-  final String fileUri;
-  final String album;
-  Song({
-    required this.id,
-    required this.title,
-    required this.duration,
-    required this.fileUri,
-    required this.album,
-  });
-}
-
-final albumMock = Album(title: 'Van Halen', artist: 'Van Halen', artUri: 'images/vanhalen.jpg', songs: [
-  Song(id: 1, title: 'Runnin\' with the Devil', duration: '3:36', fileUri: 'assets/songs/runnin_with_the_devil.mp3', album: 'Van Halen'),
-  Song(id: 2, title: 'Eruption', duration: '1:42', fileUri: 'assets/songs/eruption.mp3', album: 'Van Halen'),
-  Song(id: 3, title: 'You Really Got Me', duration: '2:13', fileUri: 'assets/songs/you_really_got_me.mp3', album: 'Van Halen'),
-]);
+//final albumMock = Album(title: 'Van Halen', artist: 'Van Halen', artUri: 'images/vanhalen.jpg', songs: [
+//  Song(id: 1, title: 'Runnin\' with the Devil', duration: '3:36', fileUri: 'assets/songs/runnin_with_the_devil.mp3', album: 'Van Halen'),
+//  Song(id: 2, title: 'Eruption', duration: '1:42', fileUri: 'assets/songs/eruption.mp3', album: 'Van Halen'),
+//  Song(id: 3, title: 'You Really Got Me', duration: '2:13', fileUri: 'assets/songs/you_really_got_me.mp3', album: 'Van Halen'),
+//]);
 Color _iconColor = Colors.white70; 
 _setarAlbumFavorito() {
 }
