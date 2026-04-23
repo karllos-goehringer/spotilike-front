@@ -1,5 +1,5 @@
 import 'song.dart';
-class Album {
+ class Album {
   final String title;
   final String artist;
   final String artUri;
@@ -10,4 +10,12 @@ class Album {
     required this.artUri,
     required this.songs,
   });
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return Album(
+      title: json['title'],
+      artist: json['artist'],
+      artUri: json['artUri'],
+      songs: (json['songs'] as List).map((songJson) => Song.fromJson(songJson)).toList(),
+    );
+  }
 }

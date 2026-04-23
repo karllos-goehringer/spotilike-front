@@ -13,7 +13,6 @@ void main() {
 //  Song(id: 2, title: 'Eruption', duration: '1:42', fileUri: 'assets/songs/eruption.mp3', album: 'Van Halen'),
 //  Song(id: 3, title: 'You Really Got Me', duration: '2:13', fileUri: 'assets/songs/you_really_got_me.mp3', album: 'Van Halen'),
 //]);
-
 //final mockSongs = [
 //      Song(
 //        id: 1,

@@ -15,4 +15,15 @@
     required this.fileUri,
     required this.album,
   });
+  factory Song.fromJson(Map<String, dynamic> json) {
+    return Song(
+      id: json['id'],
+      band: json['band'],
+      title: json['title'],
+      duration: json['duration'],
+      albumImg: json['albumImg'],
+      fileUri: json['fileUri'],
+      album: json['album'],
+    );
+  }
 }
