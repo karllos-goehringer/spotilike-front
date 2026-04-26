@@ -4,6 +4,7 @@ import 'pages/music_player.dart';
 import '../class/album.dart';
 import '../class/song.dart';
 import 'pages/playlist.dart';
+import 'test/authentication_test_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -55,6 +56,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: MusicPlayerPage());
+    return MaterialApp(home: AuthenticationTestScreen());
   }
 }
