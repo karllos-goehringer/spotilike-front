@@ -5,6 +5,7 @@ import '../class/album.dart';
 import '../class/song.dart';
 import '../class/api_params.dart';
 import 'pages/playlist.dart';
+import 'pages/biblioteca.dart';
 
 void main() {
   runApp(const MainApp());
@@ -21,6 +22,8 @@ class MainApp extends StatelessWidget {
 
 /// Widget que faz login e depois carrega a página de álbum
 class LoginAndLoadAlbum extends StatefulWidget {
+  const LoginAndLoadAlbum({super.key});
+
   @override
   State<LoginAndLoadAlbum> createState() => _LoginAndLoadAlbumState();
 }
@@ -138,7 +141,7 @@ class _LoginAndLoadAlbumState extends State<LoginAndLoadAlbum> {
         }
 
         // Login bem-sucedido - Carrega a página de álbum
-        return const PlaylistPage(playlistId: 2,);
+        return BibliotecaPage();
       },
     );
   }

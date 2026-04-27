@@ -29,7 +29,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
     final playlist = await PlaylistController.getPlaylist(widget.playlistId);
     if (playlist != null && playlist.imageUrl != null) {
       setState(() {
-        _artFuture = ControllerAlbum.getAlbumArt(playlist.imageUrl!.toString() ?? '');
+        _artFuture = ControllerAlbum.getAlbumArt(playlist.imageUrl!.toString());
       });
     }
     return playlist;
@@ -49,6 +49,53 @@ class _PlaylistPageState extends State<PlaylistPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _deletePlaylist(Playlist playlist) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text(
+          'Apagar Playlist',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          'Tem certeza que deseja apagar "${playlist.name}"?',
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Apagar',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      final success = await PlaylistController.deletePlaylist(playlist.id);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Playlist apagada com sucesso!')),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao apagar playlist.')),
+        );
+      }
+    }
   }
 
   @override
@@ -209,6 +256,30 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             )
                           ],
                         ),
+                      ),
+                      PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert, color: Colors.white),
+                        color: Colors.grey[900],
+                        onSelected: (value) {
+                          if (value == 'delete') {
+                            _deletePlaylist(playlist);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Apagar',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       SizedBox(
                         width: 60,

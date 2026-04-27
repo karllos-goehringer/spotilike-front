@@ -51,6 +51,6 @@ class Song {
   
   /// 🎵 Verificar se o arquivo está disponível
   Future<bool> checkAvailability() async {
-    return await MusicController.checkMusicAvailability(this.fileUri);
+    return await MusicController.checkMusicAvailability(fileUri);
   }
 }

@@ -4,7 +4,7 @@ import 'package:spotilike_front/class/song.dart';
 import 'dart:typed_data';
 
 class MusicController {
-  static const String mediaBaseUrl = '${ApiParams.apiBaseUrl}';
+  static const String mediaBaseUrl = ApiParams.apiBaseUrl;
 
   static Future<Uint8List?> getMusicFile(String fileUri) async {
     print(fileUri);

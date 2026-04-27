@@ -16,7 +16,6 @@ class AlbumPage extends StatefulWidget {
 class _AlbumPageState extends State<AlbumPage> {
   late Future<Album?> _albumFuture;
   Future<Uint8List?>? _artFuture;
-  bool _isFavorite = false;
 
   @override
   void initState() {

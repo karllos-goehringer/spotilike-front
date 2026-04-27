@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:spotilike_front/class/api_params.dart';
 import 'package:spotilike_front/class/playlist.dart';
 
@@ -13,8 +14,7 @@ class PlaylistController {
   static const String getPlaylistsEndpoint = '$apiBaseUrl/api/playlists/';
   static const String deletePlaylistEndpoint = '$apiBaseUrl/api/playlists/';
   static const String addSongEndpoint = '$apiBaseUrl/api/playlists/add_song/';
-  static const String removeSongEndpoint =
-      '$apiBaseUrl/api/playlists/remove_song/';
+  static const String removeSongEndpoint = '$apiBaseUrl/api/playlists/remove_song/';
 
   /// Retorna uma lista de playlists
   static Future<List<Playlist>?> getAllPlaylistUser(int userID) async {
@@ -100,23 +100,33 @@ class PlaylistController {
     required int userID,
     required String name,
     required String description,
-    String imageUrl = '',
+    XFile? image,
   }) async {
     try {
       final headers = await ApiParams.obterHeaders();
+      // Removemos o Content-Type manual para que o MultipartRequest defina o boundary correto
+      headers.remove('Content-Type');
 
-      final body = jsonEncode({
-        'user_id': userID,
-        'name': name,
-        'description': description,
-        'imageUrl': imageUrl,
-      });
+      var request = http.MultipartRequest('POST', Uri.parse(createPlaylistEndpoint));
+      request.headers.addAll(headers);
 
-      final response = await http.post(
-        Uri.parse(createPlaylistEndpoint),
-        headers: headers,
-        body: body,
-      );
+      request.fields['user_id'] = userID.toString();
+      request.fields['plName'] = name;
+      request.fields['description'] = description;
+
+      if (image != null) {
+        final imageBytes = await image.readAsBytes();
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'plImage',
+            imageBytes,
+            filename: image.name,
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);

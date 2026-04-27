@@ -340,12 +340,12 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
 
 class Controls extends StatelessWidget {
   const Controls({
-    Key? key,
+    super.key,
     required this.audioPlayer,
     required this.onNext,
     required this.onPrevious,
     required this.queueManager,
-  }) : super(key: key);
+  });
 
   final AudioPlayer audioPlayer;
   final VoidCallback onNext;
