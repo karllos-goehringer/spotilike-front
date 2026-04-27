@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import '../class/album.dart';
 import '../class/song.dart';
 import '../controller/controller_album.dart';
+import 'music_player.dart';
 
 class AlbumPage extends StatefulWidget {
   final int albumId;
@@ -34,10 +35,22 @@ class _AlbumPageState extends State<AlbumPage> {
     return album;
   }
 
-  void _playSong(Song song) {
-    // Integração futura com seu player
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('🎵 Tocando: ${song.title}')),
+  void _playSong(Song song, Album album) {
+    // Encontrar o índice da música clicada
+    int songIndex = album.songs.indexOf(song);
+    
+    // Navegar para o player com a fila de músicas
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MusicPlayerPage(
+          songs: album.songs,
+          initialIndex: songIndex,
+          albumTitle: album.title,
+          albumArtist: album.artist,
+          albumArtUri: album.artUri,
+        ),
+      ),
     );
   }
 
@@ -216,15 +229,15 @@ class _AlbumPageState extends State<AlbumPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Ícone de Curtir
-                      IconButton(
-                        onPressed: _toggleFavorite,
-                        icon: Icon(
-                          _isFavorite ? Icons.favorite : Icons.favorite_outline,
-                          color: _isFavorite ? Colors.redAccent : Colors.white70,
-                          size: 30,
-                        ),
-                      ),
+                      //// Ícone de Curtir
+                      //IconButton(
+                      //  onPressed: _toggleFavorite,
+                      //  icon: Icon(
+                      //    _isFavorite ? Icons.favorite : Icons.favorite_outline,
+                      //    color: _isFavorite ? Colors.redAccent :,album Colors.white70,
+                      //    size: 30,
+                      //  ),
+                      //),
 
                       // Botão de Play Circular
                       SizedBox(
@@ -232,7 +245,7 @@ class _AlbumPageState extends State<AlbumPage> {
                         height: 60,
                         child: ElevatedButton(
                           onPressed: album.songs.isNotEmpty
-                              ? () => _playSong(album.songs.first)
+                              ? () => _playSong(album.songs.first, album)
                               : null,
                           style: ElevatedButton.styleFrom(
                             shape: const CircleBorder(),
@@ -270,7 +283,7 @@ class _AlbumPageState extends State<AlbumPage> {
                       final song = album.songs[index];
                       return ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                        onTap: () => _playSong(song),
+                        onTap: () => _playSong(song, album),
                         tileColor: Colors.white10,
                         leading: Text(
                           '${index + 1}',

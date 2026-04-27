@@ -4,15 +4,13 @@ import 'package:spotilike_front/class/song.dart';
 import 'dart:typed_data';
 
 class MusicController {
-  static const String mediaBaseUrl = '${ApiParams.apiBaseUrl}/media/';
+  static const String mediaBaseUrl = '${ApiParams.apiBaseUrl}';
 
   static Future<Uint8List?> getMusicFile(String fileUri) async {
+    print(fileUri);
     try {
       final headers = await ApiParams.obterHeaders();
       final url = '$mediaBaseUrl$fileUri';
-
-      print('📥 Baixando música: $url');
-
       final response = await http.get(
         Uri.parse(url),
         headers: headers,
@@ -44,16 +42,13 @@ class MusicController {
   /// Inclui o token na URL para autenticação
   static Future<String?> getMusicStreamUrl(String fileUri) async {
     try {
-      final token = await ApiParams.obterToken();
-
-      if (token == null) {
-        print('❌ Erro: Nenhum token disponível');
-        return null;
-      }
-
-      // Construir URL com token como query parameter
-      final url = '$mediaBaseUrl$fileUri?token=$token';
-      print('🎵 URL de stream gerada: $url');
+       final headers = await ApiParams.obterHeaders();
+      final url = '$mediaBaseUrl$fileUri';
+      print(url);
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
 
       return url;
     } catch (e) {

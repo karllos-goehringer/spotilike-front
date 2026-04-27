@@ -10,8 +10,7 @@ class ControllerAlbum {
   // Endpoints dos álbuns
   static const String getAlbumByIdEndpoint = '$apiBaseUrl/api/albums/';
   static const String getAllAlbumsEndpoint = '$apiBaseUrl/api/albums/';
-  static const String getAlbumsByGenreEndpoint =
-      '$apiBaseUrl/api/albums/genre/';
+  static const String getAlbumsByGenreEndpoint = '$apiBaseUrl/api/albums/genre/';
   static const String getAlbumDetailEndpoint = '$apiBaseUrl/api/albums/';
   static const String searchAlbumEndpoint = '$apiBaseUrl/api/albums/search/';
 
@@ -108,15 +107,18 @@ class ControllerAlbum {
       String cleanPath = albumImage.startsWith('/')
           ? albumImage.substring(1)
           : albumImage;
-      final url = cleanPath.startsWith('http')
+      String url = cleanPath.startsWith('http')
           ? cleanPath
           : cleanPath.startsWith('media/')
-          ? '$apiBaseUrl/$cleanPath'
-          : '$apiBaseUrl/media/$cleanPath';
+              ? '$apiBaseUrl/$cleanPath'
+              : '$apiBaseUrl/media/$cleanPath';
+
+      // Garante que espaços e caracteres especiais na URL sejam codificados
+      final uri = Uri.parse(url);
 
       print('📥 Obtendo arte do álbum: $albumImage');
 
-      final response = await http.get(Uri.parse(url), headers: headers);
+      final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
         print('✅ Arte do álbum obtida com sucesso!');

@@ -12,12 +12,18 @@ import 'song.dart';
   });
   factory Album.fromJson(Map<String, dynamic> json) {
     print(json.toString());
+    final String albumOwner = json['owner']?.toString() ?? 'Artista desconhecido';
+    
     return Album(
       title: json['albumName']?.toString() ?? 'Sem título',
-      artist: json['owner']?.toString() ?? 'Artista desconhecido',
+      artist: albumOwner,
       artUri: json['albumimage']?.toString() ?? '',
       songs: (json['songs'] as List? ?? [])
-          .map((songJson) => Song.fromJson(songJson as Map<String, dynamic>))
+          .map((songJson) {
+            final map = songJson as Map<String, dynamic>;
+            map['owner'] = map['owner'] ?? albumOwner;
+            return Song.fromJson(map);
+          })
           .toList(),
     );
   }

@@ -1,5 +1,4 @@
 
-import 'package:spotilike_front/class/api_params.dart';
 import 'package:spotilike_front/controller/controller_music.dart';
 import 'dart:typed_data';
 
@@ -27,10 +26,10 @@ class Song {
  factory Song.fromJson(Map<String, dynamic> json) {
     return Song(
       id: json['PK_songID']?.toString() ?? '', 
-      band: json['band'] ?? 'Unknown Band',
+      band: json['owner'] ?? 'Unknown Band',
       title: json['songtitle'] ?? 'Unknown Title',
       duration: json['timeMusic'] ?? '00:00',
-      albumImg: json['albumImg'] ?? '',
+      albumImg: (json['albumimage'] ?? json['albumImg'] ?? json['album_art'] ?? '').toString(),
       fileUri: json['songpath'] ?? '',
       album: json['album'] ?? 'Unknown Album',
       generoMusical: json['generoMusical'] ?? '',
