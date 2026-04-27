@@ -199,7 +199,14 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 8),
-                           
+                            Text(
+                              playlist.description ?? '',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            )
                           ],
                         ),
                       ),
