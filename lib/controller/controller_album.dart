@@ -250,8 +250,7 @@ class ControllerAlbum {
         if (responseSongs.statusCode == 200) {
           final jsonSongsResponse = jsonDecode(responseSongs.body);
 
-          // Se jsonSongsResponse já é a lista [ {...}, {...} ],
-          // atribuímos ela direto na chave que o Album.fromJson espera.
+         
           jsonResponse['songs'] = jsonSongsResponse;
           String artistName = jsonResponseOwner['data'][0]['name'];
           jsonResponse['owner'] = artistName;

@@ -41,21 +41,9 @@ class MusicController {
   }
   /// Inclui o token na URL para autenticação
   static Future<String?> getMusicStreamUrl(String fileUri) async {
-    try {
-       final headers = await ApiParams.obterHeaders();
-      final url = '$mediaBaseUrl$fileUri';
-      print(url);
-      final response = await http.get(
-        Uri.parse(url),
-        headers: headers,
-      );
-
+      final url = '$mediaBaseUrl$fileUri';  
       return url;
-    } catch (e) {
-      print('❌ Erro ao gerar URL de stream: $e');
-      return null;
-    }
-  }
+      }
 
   ///Obter URL de stream de um objeto Song
   static Future<String?> getMusicStreamUrlFromSong(Song song) async {

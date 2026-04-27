@@ -2,19 +2,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:spotilike_front/class/api_params.dart';
 import 'package:spotilike_front/class/playlist.dart';
-import 'package:spotilike_front/class/localStorage.dart';
 
 class PlaylistController {
   static String? userToken;
   static const String apiBaseUrl = ApiParams.apiBaseUrl;
-  static final LocalStorage _storage = LocalStorage();
 
   // Endpoints das rotas
-  static const String createPlaylistEndpoint = '$apiBaseUrl/api/playlists/create_playlist_for_user/';
+  static const String createPlaylistEndpoint =
+      '$apiBaseUrl/api/playlists/create_playlist_for_user/';
   static const String getPlaylistsEndpoint = '$apiBaseUrl/api/playlists/';
   static const String deletePlaylistEndpoint = '$apiBaseUrl/api/playlists/';
   static const String addSongEndpoint = '$apiBaseUrl/api/playlists/add_song/';
-  static const String removeSongEndpoint = '$apiBaseUrl/api/playlists/remove_song/';
+  static const String removeSongEndpoint =
+      '$apiBaseUrl/api/playlists/remove_song/';
 
   /// Retorna uma lista de playlists
   static Future<List<Playlist>?> getAllPlaylistUser(int userID) async {
@@ -27,16 +27,16 @@ class PlaylistController {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        
+
         // Ajuste conforme a estrutura da resposta da API
-        final List<dynamic> playlistsJson = jsonResponse is List 
-            ? jsonResponse 
+        final List<dynamic> playlistsJson = jsonResponse is List
+            ? jsonResponse
             : jsonResponse['playlists'] ?? [];
-        
+
         final playlists = playlistsJson
-            .map((playlistJson) => Playlist.fromJson(playlistJson))
+            .map((playlistJson) => Playlist.fromJson(playlistJson, []))
             .toList();
-        
+
         print('✅ Playlists carregadas: ${playlists.length}');
         return playlists;
       } else if (response.statusCode == 401) {
@@ -54,6 +54,47 @@ class PlaylistController {
     }
   }
 
+  static Future<Playlist?> getPlaylist(int playlistID) async {
+    
+    final headers = await ApiParams.obterHeaders();
+    final responseDadosPlaylist = await http.get(
+      Uri.parse('$getPlaylistsEndpoint$playlistID/'),
+      headers: headers,
+    );
+    final jsonDadosPlaylist = jsonDecode(responseDadosPlaylist.body);
+    print(jsonDadosPlaylist);
+    final musicasPlaylist = await http.get(
+      Uri.parse('$getPlaylistsEndpoint$playlistID/songs/'),
+      headers: headers,
+    );
+    
+    final jsonMusicasPlaylist =  jsonDecode(musicasPlaylist.body);
+    //pra cada musica buscar o album e o artista enfiar o artista e o album na musica
+    var i = 0;
+    for (var musica in jsonMusicasPlaylist) {
+    
+    final albumid = jsonMusicasPlaylist[i]['album_pk_albumid1'];
+    i++;
+    final dadosAlbum = await http.get(
+      Uri.parse('$apiBaseUrl/api/albums/$albumid/'),
+      headers: headers,
+    );
+    final jsonDadosAlbum = jsonDecode(dadosAlbum.body);
+    musica['album'] = jsonDadosAlbum['albumName'];
+    musica['albumImg'] = jsonDadosAlbum['albumimage'];
+    musica['albumid'] = albumid;
+    final dadosArtistas = await http.get(
+      Uri.parse('$apiBaseUrl/api/albums/$albumid/get_owner/'),
+      headers: headers,
+    );
+    final jsonDadosArtistas = jsonDecode(dadosArtistas.body);
+    musica['owner'] = jsonDadosArtistas['data'][0]['name'];
+    
+    }
+    return Playlist.fromJson(jsonDadosPlaylist,jsonMusicasPlaylist);
+
+  }
+
   /// Retorna a playlist criada
   static Future<Playlist?> createPlaylist({
     required int userID,
@@ -63,7 +104,7 @@ class PlaylistController {
   }) async {
     try {
       final headers = await ApiParams.obterHeaders();
-      
+
       final body = jsonEncode({
         'user_id': userID,
         'name': name,
@@ -79,11 +120,13 @@ class PlaylistController {
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        
+
         // Ajuste conforme a estrutura de resposta da API
-        final playlistData = jsonResponse is Map ? jsonResponse : jsonResponse['playlist'];
-        final playlist = Playlist.fromJson(playlistData);
-        
+        final playlistData = jsonResponse is Map
+            ? jsonResponse
+            : jsonResponse['playlist'];
+        final playlist = Playlist.fromJson(playlistData, []);
+
         print('✅ Playlist criada com sucesso: ${playlist.name}');
         return playlist;
       } else if (response.statusCode == 401) {
@@ -100,10 +143,11 @@ class PlaylistController {
       return null;
     }
   }
+
   static Future<bool> deletePlaylist(int playlistID) async {
     try {
       final headers = await ApiParams.obterHeaders();
-      
+
       final response = await http.delete(
         Uri.parse('$deletePlaylistEndpoint$playlistID/'),
         headers: headers,
@@ -134,11 +178,8 @@ class PlaylistController {
   static Future<bool> addSongPlaylist(int playlistID, int songID) async {
     try {
       final headers = await ApiParams.obterHeaders();
-      
-      final body = jsonEncode({
-        'playlist_id': playlistID,
-        'song_id': songID,
-      });
+
+      final body = jsonEncode({'playlist_id': playlistID, 'song_id': songID});
 
       final response = await http.post(
         Uri.parse(addSongEndpoint),
@@ -167,11 +208,8 @@ class PlaylistController {
   static Future<bool> removeSongPlaylist(int playlistID, int songID) async {
     try {
       final headers = await ApiParams.obterHeaders();
-      
-      final body = jsonEncode({
-        'playlist_id': playlistID,
-        'song_id': songID,
-      });
+
+      final body = jsonEncode({'playlist_id': playlistID, 'song_id': songID});
 
       final response = await http.post(
         Uri.parse(removeSongEndpoint),

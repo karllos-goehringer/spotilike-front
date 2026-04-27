@@ -54,18 +54,6 @@ class _AlbumPageState extends State<AlbumPage> {
     );
   }
 
-  void _toggleFavorite() {
-    setState(() {
-      _isFavorite = !_isFavorite;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_isFavorite ? '❤️ Adicionado aos favoritos' : '🖤 Removido dos favoritos'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Album?>(

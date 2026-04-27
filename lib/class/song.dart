@@ -24,6 +24,8 @@ class Song {
   });
   
  factory Song.fromJson(Map<String, dynamic> json) {
+    //buscar album
+    //buscar artista/banda
     return Song(
       id: json['PK_songID']?.toString() ?? '', 
       band: json['owner'] ?? 'Unknown Band',

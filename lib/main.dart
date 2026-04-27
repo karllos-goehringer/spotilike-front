@@ -138,7 +138,7 @@ class _LoginAndLoadAlbumState extends State<LoginAndLoadAlbum> {
         }
 
         // Login bem-sucedido - Carrega a página de álbum
-        return AlbumPage(albumId: 3);
+        return const PlaylistPage(playlistId: 2,);
       },
     );
   }

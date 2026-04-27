@@ -11,7 +11,6 @@ import 'song.dart';
     required this.songs,
   });
   factory Album.fromJson(Map<String, dynamic> json) {
-    print(json.toString());
     final String albumOwner = json['owner']?.toString() ?? 'Artista desconhecido';
     
     return Album(
