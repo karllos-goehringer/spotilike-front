@@ -11,11 +11,14 @@ import 'song.dart';
     required this.songs,
   });
   factory Album.fromJson(Map<String, dynamic> json) {
+    print(json.toString());
     return Album(
-      title: json['title'],
-      artist: json['artist'],
-      artUri: json['artUri'],
-      songs: (json['songs'] as List).map((songJson) => Song.fromJson(songJson)).toList(),
+      title: json['albumName']?.toString() ?? 'Sem título',
+      artist: json['owner']?.toString() ?? 'Artista desconhecido',
+      artUri: json['albumimage']?.toString() ?? '',
+      songs: (json['songs'] as List? ?? [])
+          .map((songJson) => Song.fromJson(songJson as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

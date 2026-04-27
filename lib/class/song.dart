@@ -1,11 +1,18 @@
- class Song {
-  final int id;
+
+import 'package:spotilike_front/class/api_params.dart';
+import 'package:spotilike_front/controller/controller_music.dart';
+import 'dart:typed_data';
+
+class Song {
+  final String id;
   final String band;
   final String title;
   final String duration;
   final String albumImg;
   final String fileUri;
   final String album;
+  final String generoMusical;
+  
   Song({
     required this.id,
     required this.band,
@@ -14,16 +21,35 @@
     required this.albumImg,
     required this.fileUri,
     required this.album,
+    this.generoMusical = '',
   });
-  factory Song.fromJson(Map<String, dynamic> json) {
+  
+ factory Song.fromJson(Map<String, dynamic> json) {
     return Song(
-      id: json['id'],
-      band: json['band'],
-      title: json['title'],
-      duration: json['duration'],
-      albumImg: json['albumImg'],
-      fileUri: json['fileUri'],
-      album: json['album'],
+      id: json['PK_songID']?.toString() ?? '', 
+      band: json['band'] ?? 'Unknown Band',
+      title: json['songtitle'] ?? 'Unknown Title',
+      duration: json['timeMusic'] ?? '00:00',
+      albumImg: json['albumImg'] ?? '',
+      fileUri: json['songpath'] ?? '',
+      album: json['album'] ?? 'Unknown Album',
+      generoMusical: json['generoMusical'] ?? '',
     );
+  }
+  
+  /// 🎵 Obter o arquivo de áudio desta música com autenticação
+  /// Retorna Uint8List com os bytes do arquivo
+  Future<Uint8List?> requestMusicFile() async {
+    return await MusicController.getMusicFromSong(this);
+  }
+  
+  /// 🎵 Obter URL de stream para reprodução em tempo real
+  Future<String?> getStreamUrl() async {
+    return await MusicController.getMusicStreamUrlFromSong(this);
+  }
+  
+  /// 🎵 Verificar se o arquivo está disponível
+  Future<bool> checkAvailability() async {
+    return await MusicController.checkMusicAvailability(this.fileUri);
   }
 }

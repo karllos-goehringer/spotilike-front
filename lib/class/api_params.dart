@@ -4,6 +4,8 @@ import 'localStorage.dart';
 
 class ApiParams {
   static const String apiBaseUrl = 'http://127.0.0.1:8000';
+  final String mediaBaseUrl = ApiParams.apiBaseUrl + '/media/';
+
   static const String apiUser = 'karllos';
   static const String apiPassword = '123456';
   static const String loginEndpoint = '$apiBaseUrl/api/login/';
@@ -26,11 +28,16 @@ class ApiParams {
       );
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
+        if (response.body.isEmpty || response.body == 'null') {
+          print('❌ Resposta de autenticação vazia');
+          return null;
+        }
+
+        final dynamic jsonResponse = jsonDecode(response.body);
         
-        // Ajuste a chave conforme a resposta da sua API
-        // Pode ser 'token', 'access_token', 'data.token', etc
-        token = jsonResponse['token'] ?? jsonResponse['access_token'];
+        // Garantindo que o valor extraído seja tratado como String ou null
+        final extractedToken = jsonResponse['token'] ?? jsonResponse['access_token'];
+        token = extractedToken?.toString();
         
         if (token != null) {
           // Armazenar token no localStorage para persistência
@@ -74,7 +81,9 @@ class ApiParams {
     final tokenAtual = await obterToken();
     return {
       'Content-Type': 'application/json',
-      if (tokenAtual != null) 'Authorization': 'Bearer $tokenAtual',
+      // No Django REST Framework padrão, o prefixo é 'Token'. 
+      // Use 'Bearer' apenas se estiver usando JWT.
+      if (tokenAtual != null) 'Authorization': 'Token $tokenAtual',
     };
   }
 

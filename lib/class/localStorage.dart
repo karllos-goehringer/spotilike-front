@@ -42,16 +42,4 @@ class LocalStorage {
       return false;
     }
   }
-
-  addAlbum(Album album) {
-    albums.add(album);
-  }
-
-  addPlaylist(Playlist playlist) {
-    playlists.add(playlist);
-  }
-
-  addSong(Song song) {
-    songs.add(song);
-  }
 }
