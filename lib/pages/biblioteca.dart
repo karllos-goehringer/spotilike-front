@@ -32,7 +32,7 @@ class _BibliotecaPageState extends State<BibliotecaPage> {
   }
 
   Future<void> _loadPlaylists() async {
-    const int userID = 1; // Placeholder: substitua pelo ID do usuário logado
+    const int userID = 2; // Use o ID que veio do login: {"id":2}
     final result = await PlaylistController.getAllPlaylistUser(userID);
     if (result != null) {
       setState(() {
@@ -189,26 +189,29 @@ class _BibliotecaPageState extends State<BibliotecaPage> {
                 child: CircularProgressIndicator(color: Colors.greenAccent),
               )
             : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: kToolbarHeight + 20),
-                  const Text(
-                    'Biblioteca',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'Biblioteca',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
                   Expanded(
                     child: GridView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        crossAxisSpacing: 16.0,
-                        mainAxisSpacing: 16.0,
-                        childAspectRatio: 1.0, // Quadrado para botões menores
+                        crossAxisSpacing: 20.0,
+                        mainAxisSpacing: 20.0,
+                        childAspectRatio: 0.82, 
                       ),
                       itemCount: playlists.length,
                       itemBuilder: (context, index) {
@@ -225,42 +228,49 @@ class _BibliotecaPageState extends State<BibliotecaPage> {
                               _loadPlaylists();
                             }
                           },
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              border: Border.all(color: Colors.white12, width: 1),
+                              color: Colors.white.withOpacity(0.05),
+                            ),
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8.0),
-                                    image: playlist.imageUrl != null && playlist.imageUrl!.isNotEmpty
-                                        ? DecorationImage(
-                                            image: NetworkImage(playlist.imageUrl!),
-                                            fit: BoxFit.contain, // Mantém proporção sem cortar
-                                          )
-                                        : null,
-                                    color: playlist.imageUrl == null || playlist.imageUrl!.isEmpty
-                                        ? Colors.grey[900]
-                                        : null,
+                                    child: Container(
+                                      width: double.infinity,
+                                      color: Colors.grey[900],
+                                      child: playlist.imageUrl != null && playlist.imageUrl!.isNotEmpty
+                                          ? Image.network(
+                                              playlist.imageUrl!,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) =>
+                                                  const Icon(Icons.music_note, color: Colors.white54),
+                                            )
+                                          : const Center(
+                                              child: Icon(Icons.music_note,
+                                                  color: Colors.white54, size: 40),
+                                            ),
+                                    ),
                                   ),
-                                  child: playlist.imageUrl == null || playlist.imageUrl!.isEmpty
-                                      ? const Center(
-                                          child: Text(
-                                            'Sem Imagem',
-                                            style: TextStyle(color: Colors.white),
-                                          ),
-                                        )
-                                      : null,
                                 ),
-                              ),
-                              const SizedBox(height: 8.0),
-                              Text(
-                                playlist.name,
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ],
+                                const SizedBox(height: 10.0),
+                                Text(
+                                  playlist.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },

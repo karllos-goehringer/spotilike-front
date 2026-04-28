@@ -149,7 +149,7 @@ class PlaylistController {
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      print('❌ Erro ao fazer requisição ou processar JSON: $e');
       return null;
     }
   }

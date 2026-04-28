@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spotilike_front/pages/home.dart';
 import 'pages/music_player.dart';
 import 'pages/album.dart';
 import '../class/album.dart';
@@ -6,6 +7,7 @@ import '../class/song.dart';
 import '../class/api_params.dart';
 import 'pages/playlist.dart';
 import 'pages/biblioteca.dart';
+import 'pages/login.dart';
 
 void main() {
   runApp(const MainApp());
@@ -16,133 +18,52 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: LoginAndLoadAlbum());
+    return MaterialApp(home: const LoginPage());
   }
 }
 
-/// Widget que faz login e depois carrega a página de álbum
-class LoginAndLoadAlbum extends StatefulWidget {
-  const LoginAndLoadAlbum({super.key});
+class MainNavigator extends StatefulWidget {
+  const MainNavigator({super.key});
 
   @override
-  State<LoginAndLoadAlbum> createState() => _LoginAndLoadAlbumState();
+  State<MainNavigator> createState() => _MainNavigatorState();
 }
 
-class _LoginAndLoadAlbumState extends State<LoginAndLoadAlbum> {
-  late Future<void> _loginFuture;
+class _MainNavigatorState extends State<MainNavigator> {
+  int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    // Executa o login quando o widget é criado
-    _loginFuture = _performLogin();
-  }
+  static final List<Widget> _pages = <Widget>[
+    HomePage(),
+    BibliotecaPage(),
+  ];
 
-  Future<void> _performLogin() async {
-    try {
-      print('🔐 Iniciando autenticação...');
-      final resultToken = await ApiParams.obterToken();
-      
-      if (resultToken == null) {
-        throw Exception('Não foi possível obter o token de acesso.');
-      }
-      
-      print('✅ Autenticação bem-sucedida! Token carregado.');
-    } catch (e) {
-      print('❌ Erro durante autenticação: $e');
-      rethrow;
-    }
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: _loginFuture,
-      builder: (context, snapshot) {
-        // Carregando/Autenticando
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 47, 46, 48),
-                    Color.fromARGB(255, 22, 19, 19),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(color: Colors.greenAccent),
-                    const SizedBox(height: 20),
-                    const Text(
-                      '🔐 Autenticando...',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-
-        // Erro na autenticação
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 47, 46, 48),
-                    Color.fromARGB(255, 22, 19, 19),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Erro ao autenticar',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      snapshot.error.toString(),
-                      style: const TextStyle(color: Colors.white70, fontSize: 14),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _loginFuture = _performLogin();
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.greenAccent,
-                        foregroundColor: Colors.black,
-                      ),
-                      child: const Text('Tentar Novamente'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-
-        // Login bem-sucedido - Carrega a página de álbum
-        return BibliotecaPage();
-      },
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.library_music),
+            label: 'Biblioteca',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.greenAccent,
+        unselectedItemColor: Colors.white70,
+        backgroundColor: const Color.fromARGB(255, 22, 19, 19),
+        onTap: _onItemTapped,
+      ),
     );
   }
 }

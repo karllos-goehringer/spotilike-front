@@ -77,6 +77,49 @@ class ApiParams {
     return await autenticarAPI();
   }
 
+  /// Autentica com credenciais fornecidas
+  static Future<String?> autenticarAPIComCredenciais(String username, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse(loginEndpoint),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        if (response.body.isEmpty || response.body == 'null') {
+          print('❌ Resposta de autenticação vazia');
+          return null;
+        }
+
+        final dynamic jsonResponse = jsonDecode(response.body);
+        
+        final extractedToken = jsonResponse['token'] ?? jsonResponse['access_token'];
+        token = extractedToken?.toString();
+        
+        if (token != null) {
+          await _storage.saveToken(token!);
+          print('Token autenticado: $token');
+          return token;
+        } else {
+          print('Token não encontrado na resposta');
+          return null;
+        }
+      } else {
+        print('Erro na autenticação: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Erro ao autenticar: $e');
+      return null;
+    }
+  }
+
   /// Retorna headers padrão com autenticação
   static Future<Map<String, String>> obterHeaders() async {
     final tokenAtual = await obterToken();
