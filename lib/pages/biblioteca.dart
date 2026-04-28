@@ -3,7 +3,6 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../class/playlist.dart';
 import '../controller/controller_playlist.dart';
-import '../class/api_params.dart';
 import 'playlist.dart';
 
 class BibliotecaPage extends StatefulWidget {

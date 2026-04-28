@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spotilike_front/controller/controller_user.dart';
-import '../class/api_params.dart';
-import 'login.dart';
+
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

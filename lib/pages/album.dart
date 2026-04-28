@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import '../class/album.dart';
 import '../class/song.dart';
 import '../controller/controller_album.dart';
+import '../controller/controller_playlist.dart';
+import '../class/playlist.dart';
 import 'music_player.dart';
 
 class AlbumPage extends StatefulWidget {
@@ -50,6 +52,62 @@ class _AlbumPageState extends State<AlbumPage> {
           albumArtUri: album.artUri,
         ),
       ),
+    );
+  }
+
+  void _showPlaylistSelectionDialog(Song song) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        const int userID = 2; // ID placeholder, seguindo o padrão da BibliotecaPage
+        return AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text(
+            'Adicionar à Playlist',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: FutureBuilder<List<Playlist>?>(
+              future: PlaylistController.getAllPlaylistUser(userID),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator(color: Colors.greenAccent));
+                }
+                if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Text('Nenhuma playlist encontrada.', style: TextStyle(color: Colors.white70));
+                }
+                final playlists = snapshot.data!;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: playlists.length,
+                  itemBuilder: (context, index) {
+                    final playlist = playlists[index];
+                    return ListTile(
+                      leading: const Icon(Icons.playlist_add, color: Colors.greenAccent),
+                      title: Text(playlist.name, style: const TextStyle(color: Colors.white)),
+                      onTap: () async {
+                        final success = await PlaylistController.addSongPlaylist(
+                          playlist.id,
+                          int.parse(song.id),
+                        );
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(success 
+                              ? 'Música adicionada a "${playlist.name}"!' 
+                              : 'Erro ao adicionar música.'),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -209,24 +267,10 @@ class _AlbumPageState extends State<AlbumPage> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-
                   const SizedBox(height: 32),
-
-                  // Botões de ação
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      //// Ícone de Curtir
-                      //IconButton(
-                      //  onPressed: _toggleFavorite,
-                      //  icon: Icon(
-                      //    _isFavorite ? Icons.favorite : Icons.favorite_outline,
-                      //    color: _isFavorite ? Colors.redAccent :,album Colors.white70,
-                      //    size: 30,
-                      //  ),
-                      //),
-
-                      // Botão de Play Circular
                       SizedBox(
                         width: 60,
                         height: 60,
@@ -248,8 +292,6 @@ class _AlbumPageState extends State<AlbumPage> {
                           ),
                         ),
                       ),
-
-                      // Ícone de Menu/Mais
                       IconButton(
                         onPressed: () {},
                         icon: const Icon(Icons.more_vert,
@@ -257,11 +299,8 @@ class _AlbumPageState extends State<AlbumPage> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 10),
                   const Divider(color: Colors.white10),
-
-                  // Lista de Músicas
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -289,8 +328,27 @@ class _AlbumPageState extends State<AlbumPage> {
                           album.artist,
                           style: const TextStyle(color: Colors.white54),
                         ),
-                        trailing: const Icon(Icons.more_horiz,
-                            color: Colors.white54),
+                        trailing: PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_horiz, color: Colors.white54),
+                          color: Colors.grey[900],
+                          onSelected: (value) {
+                            if (value == 'add_to_playlist') {
+                              _showPlaylistSelectionDialog(song);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'add_to_playlist',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.add, color: Colors.white, size: 20),
+                                  SizedBox(width: 8),
+                                  Text('Adicionar à playlist', style: TextStyle(color: Colors.white)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),

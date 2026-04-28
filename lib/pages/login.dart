@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spotilike_front/class/user.dart';
 import 'package:spotilike_front/controller/controller_user.dart';
-import '../class/api_params.dart';
 import 'register.dart';
 import '../main.dart';
 class LoginPage extends StatefulWidget {
@@ -39,8 +37,6 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Simular login com API
-      final token = await ApiParams.autenticarAPIComCredenciais(username, password);
       final user = await ControllerUser.loginUser(username, password);
       if (user != null) {
         

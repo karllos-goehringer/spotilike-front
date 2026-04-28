@@ -35,6 +35,26 @@ class _PlaylistPageState extends State<PlaylistPage> {
     return playlist;
   }
 
+  Future<void> _removeSongFromPlaylist(Song song, Playlist playlist) async {
+    final success = await PlaylistController.removeSongPlaylist(
+      playlist.id,
+      int.parse(song.id),
+    );
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('"${song.title}" removida da playlist.')),
+      );
+      setState(() {
+        _playlistFuture = _initPlaylist();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao remover música.')),
+      );
+    }
+  }
+
   void _playSong(Song song, Playlist playlist) {
     final songIndex = playlist.songs.indexOf(song);
     Navigator.push(
@@ -373,10 +393,27 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              
-                              const SizedBox(width: 12),
-                              const Icon(Icons.more_vert, color: Colors.white54, size: 20),
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert, color: Colors.white54, size: 20),
+                                color: Colors.grey[900],
+                                onSelected: (value) {
+                                  if (value == 'remove') {
+                                    _removeSongFromPlaylist(song, playlist);
+                                  }
+                                },
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: 'remove',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.playlist_remove, color: Colors.red, size: 20),
+                                        SizedBox(width: 8),
+                                        Text('Remover da playlist', style: TextStyle(color: Colors.white)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),

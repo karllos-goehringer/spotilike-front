@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 10),
                     const Text(
-                      'Álbuns',
+                      'Álbuns em destaque',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

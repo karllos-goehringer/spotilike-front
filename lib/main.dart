@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:spotilike_front/pages/home.dart';
-import 'pages/music_player.dart';
-import 'pages/album.dart';
-import '../class/album.dart';
-import '../class/song.dart';
-import '../class/api_params.dart';
-import 'pages/playlist.dart';
 import 'pages/biblioteca.dart';
 import 'pages/login.dart';
 
