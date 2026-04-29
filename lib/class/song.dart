@@ -11,7 +11,9 @@ class Song {
   final String fileUri;
   final String album;
   final String generoMusical;
-  
+  final String? artistName;
+  final String? albumName;
+
   Song({
     required this.id,
     required this.band,
@@ -21,6 +23,8 @@ class Song {
     required this.fileUri,
     required this.album,
     this.generoMusical = '',
+    this.artistName,
+    this.albumName,
   });
   
  factory Song.fromJson(Map<String, dynamic> json) {
@@ -28,17 +32,18 @@ class Song {
     //buscar artista/banda
     return Song(
       id: json['PK_songID']?.toString() ?? '', 
-      band: json['owner'] ?? 'Unknown Band',
+      band: json['owner'] ?? json['artist'] ?? 'Unknown Band',
       title: json['songtitle'] ?? 'Unknown Title',
       duration: json['timeMusic'] ?? '00:00',
       albumImg: (json['albumimage'] ?? json['albumImg'] ?? json['album_art'] ?? '').toString(),
       fileUri: json['songpath'] ?? '',
       album: json['album'] ?? 'Unknown Album',
       generoMusical: json['generoMusical'] ?? '',
+      artistName: json['artist'] ?? '',
+      albumName: json['album_name'] ?? '',
     );
   }
   
-  /// 🎵 Obter o arquivo de áudio desta música com autenticação
   /// Retorna Uint8List com os bytes do arquivo
   Future<Uint8List?> requestMusicFile() async {
     return await MusicController.getMusicFromSong(this);

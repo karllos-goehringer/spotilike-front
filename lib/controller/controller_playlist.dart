@@ -3,14 +3,14 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:spotilike_front/class/api_params.dart';
 import 'package:spotilike_front/class/playlist.dart';
+import 'dart:developer' as dev;
 
 class PlaylistController {
   static String? userToken;
   static const String apiBaseUrl = ApiParams.apiBaseUrl;
 
   // Endpoints das rotas
-  static const String createPlaylistEndpoint =
-      '$apiBaseUrl/api/playlists/create_playlist_for_user/';
+  static const String createPlaylistEndpoint = '$apiBaseUrl/api/playlists/create_playlist_for_user/';
   static const String getPlaylistsEndpoint = '$apiBaseUrl/api/playlists/';
   static const String deletePlaylistEndpoint = '$apiBaseUrl/api/playlists/';
   static const String addSongEndpoint = '$apiBaseUrl/api/playlists/add_song/';
@@ -37,19 +37,19 @@ class PlaylistController {
             .map((playlistJson) => Playlist.fromJson(playlistJson, []))
             .toList();
 
-        print('✅ Playlists carregadas: ${playlists.length}');
+        dev.log('✅ Playlists carregadas: ${playlists.length}');
         return playlists;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else {
-        print('❌ Erro ao carregar playlists: ${response.statusCode}');
-        print('Resposta: ${response.body}');
+        dev.log('❌ Erro ao carregar playlists: ${response.statusCode}');
+        dev.log('Resposta: ${response.body}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return null;
     }
   }
@@ -62,7 +62,7 @@ class PlaylistController {
       headers: headers,
     );
     final jsonDadosPlaylist = jsonDecode(responseDadosPlaylist.body);
-    print(jsonDadosPlaylist);
+    dev.log(jsonDadosPlaylist.toString());
     final musicasPlaylist = await http.get(
       Uri.parse('$getPlaylistsEndpoint$playlistID/songs/'),
       headers: headers,
@@ -137,19 +137,19 @@ class PlaylistController {
             : jsonResponse['playlist'];
         final playlist = Playlist.fromJson(playlistData, []);
 
-        print('✅ Playlist criada com sucesso: ${playlist.name}');
+        dev.log('✅ Playlist criada com sucesso: ${playlist.name}');
         return playlist;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else {
-        print('❌ Erro ao criar playlist: ${response.statusCode}');
-        print('Resposta: ${response.body}');
+        dev.log('❌ Erro ao criar playlist: ${response.statusCode}');
+        dev.log('Resposta: ${response.body}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição ou processar JSON: $e');
+      dev.log('❌ Erro ao fazer requisição ou processar JSON: $e');
       return null;
     }
   }
@@ -164,32 +164,32 @@ class PlaylistController {
       );
 
       if (response.statusCode == 204 || response.statusCode == 200) {
-        print('✅ Playlist removida com sucesso!');
+        dev.log('✅ Playlist removida com sucesso!');
         return true;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return false;
       } else if (response.statusCode == 404) {
-        print('❌ Erro 404: Playlist não encontrada');
+        dev.log('❌ Erro 404: Playlist não encontrada');
         return false;
       } else {
-        print('❌ Erro ao remover playlist: ${response.statusCode}');
-        print('Resposta: ${response.body}');
+        dev.log('❌ Erro ao remover playlist: ${response.statusCode}');
+        dev.log('Resposta: ${response.body}');
         return false;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return false;
     }
   }
 
   //Adicionar música a uma playlist
-  static Future<bool> addSongPlaylist(int playlistID, int songID) async {
+  static Future<bool> addSongPlaylist(int playlistID, int songID, int playlistLength) async {
     try {
       final headers = await ApiParams.obterHeaders();
 
-      final body = jsonEncode({'playlist_id': playlistID, 'song_id': songID});
+      final body = jsonEncode({'playlist_id': playlistID, 'song_id': songID, 'ordem': playlistLength + 1});
 
       final response = await http.post(
         Uri.parse(addSongEndpoint),
@@ -198,18 +198,18 @@ class PlaylistController {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print('✅ Música adicionada à playlist!');
+        dev.log('✅ Música adicionada à playlist!');
         return true;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return false;
       } else {
-        print('❌ Erro ao adicionar música: ${response.statusCode}');
+        dev.log('❌ Erro ao adicionar música: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return false;
     }
   }
@@ -228,19 +228,62 @@ class PlaylistController {
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        print('✅ Música removida da playlist!');
+        dev.log('✅ Música removida da playlist!');
         return true;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return false;
       } else {
-        print('❌ Erro ao remover música: ${response.statusCode}');
+        dev.log('❌ Erro ao remover música: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return false;
     }
   }
+ 
+  static Future<bool> atualizarPlaylist(int playlistID, String name, String description, XFile? image) async {
+    try {
+      final headers = await ApiParams.obterHeaders();
+      headers.remove('Content-Type');
+
+      var request = http.MultipartRequest('PUT', Uri.parse('$getPlaylistsEndpoint$playlistID/'));
+      request.headers.addAll(headers);
+
+      request.fields['plName'] = name;
+      request.fields['description'] = description;
+
+      if (image != null) {
+        final imageBytes = await image.readAsBytes();
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'plImage',
+            imageBytes,
+            filename: image.name,
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        dev.log('✅ Playlist atualizada com sucesso!');
+        return true;
+      } else if (response.statusCode == 401) {
+        dev.log('❌ Erro 401: Token expirado ou inválido');
+        await ApiParams.limparToken();
+        return false;
+      } else {
+        dev.log('❌ Erro ao atualizar playlist: ${response.statusCode}');
+        dev.log('Resposta: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      dev.log('❌ Erro ao fazer requisição ou processar JSON: $e');
+      return false;
+    }
+}
 }

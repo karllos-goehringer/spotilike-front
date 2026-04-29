@@ -1,6 +1,7 @@
 ﻿import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../class/playlist.dart';
 import '../class/song.dart';
 import '../controller/controller_album.dart';
@@ -40,6 +41,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
       playlist.id,
       int.parse(song.id),
     );
+
+    if (!mounted) return;
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,8 +106,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
       ),
     );
 
+    if (!mounted) return;
+
     if (confirmed ?? false) {
       final success = await PlaylistController.deletePlaylist(playlist.id);
+      if (!mounted) return;
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Playlist apagada com sucesso!')),
@@ -116,6 +123,86 @@ class _PlaylistPageState extends State<PlaylistPage> {
         );
       }
     }
+  }
+
+  Future<void> _showEditPlaylistDialog(Playlist playlist) async {
+    final nameController = TextEditingController(text: playlist.name);
+    final descController = TextEditingController(text: playlist.description);
+    XFile? selectedImage;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text('Editar Playlist', style: TextStyle(color: Colors.white)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Nome da Playlist',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                ),
+                TextField(
+                  controller: descController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Descrição',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final ImagePicker picker = ImagePicker();
+                    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                    if (image != null) {
+                      setDialogState(() => selectedImage = image);
+                    }
+                  },
+                  icon: const Icon(Icons.image),
+                  label: Text(selectedImage == null ? 'Alterar Capa' : 'Capa Selecionada'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800]),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar', style: TextStyle(color: Colors.white70)),
+            ),
+            TextButton(
+              onPressed: () async {
+                final success = await PlaylistController.atualizarPlaylist(
+                  playlist.id,
+                  nameController.text,
+                  descController.text,
+                  selectedImage,
+                );
+                if (!mounted) return;
+                
+                Navigator.of(context).pop();
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Playlist atualizada!')),
+                  );
+                  setState(() {
+                    _playlistFuture = _initPlaylist();
+                  });
+                }
+              },
+              child: const Text('Salvar', style: TextStyle(color: Colors.greenAccent)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -283,9 +370,24 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         onSelected: (value) {
                           if (value == 'delete') {
                             _deletePlaylist(playlist);
+                          } else if (value == 'edit') {
+                            _showEditPlaylistDialog(playlist);
                           }
                         },
                         itemBuilder: (BuildContext context) => [
+                          PopupMenuItem<String>(
+                            value: 'edit',
+                            child: Row(
+                              children: const [
+                                Icon(Icons.edit_outlined, color: Colors.white, size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Editar',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
                           PopupMenuItem<String>(
                             value: 'delete',
                             child: Row(

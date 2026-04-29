@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spotilike_front/pages/home.dart';
 import 'pages/biblioteca.dart';
 import 'pages/login.dart';
+import 'pages/search.dart';
 
 void main() {
   runApp(const MainApp());
@@ -28,6 +29,7 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   static final List<Widget> _pages = <Widget>[
     HomePage(),
+    const SearchPage(),
     BibliotecaPage(),
   ];
 
@@ -46,6 +48,10 @@ class _MainNavigatorState extends State<MainNavigator> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Pesquisar',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.library_music),

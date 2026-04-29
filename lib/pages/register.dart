@@ -51,17 +51,18 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       final success = await ControllerUser.registerUser(username, email, password);
+      if (!mounted) return;
+
       if (!success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao criar conta. Verifique os dados e tente novamente.')),
         );
         return;
       }
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Conta criada com sucesso! Faça login.')),
       );
-      Navigator.pop(context); // Voltar para login
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Erro ao criar conta.')),

@@ -6,7 +6,7 @@ import '../class/song.dart';
 import '../controller/queue_manager.dart';
 import '../controller/controller_album.dart';
 import 'dart:typed_data';
-
+import 'dart:developer' as dev;
 class PositionData {
   final Duration position;
   final Duration bufferedPosition;
@@ -72,10 +72,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
         if (streamUrl != null) {
           await _audioPlayer.setUrl(streamUrl);
         } else {
-          print('❌ Erro ao obter URL de stream');
+          dev.log('❌ Erro ao obter URL de stream');
         }
       } catch (e) {
-        print('❌ Erro ao inicializar áudio: $e');
+        dev.log('❌ Erro ao inicializar áudio: $e');
       }
     }
   }
@@ -112,10 +112,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
           if (mounted) setState(() {});
         }
       } catch (e) {
-        print('❌ Erro ao carregar próxima música: $e');
+        dev.log('❌ Erro ao carregar próxima música: $e');
       }
     } else {
-      print('⏹️ Fim da fila');
+      dev.log('⏹️ Fim da fila');
       await _audioPlayer.stop();
     }
   }
@@ -131,7 +131,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
           if (mounted) setState(() {});
         }
       } catch (e) {
-        print('❌ Erro ao carregar música anterior: $e');
+        dev.log('❌ Erro ao carregar música anterior: $e');
       }
     }
   }
@@ -175,7 +175,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
               // 1. Metadata Widget
               _buildMediaDisplay(
                 title: _queueManager.currentSong?.title ?? 'Desconhecida',
-                artist: _queueManager.currentSong?.band ?? 'Artista desconhecido',
+                artist: _queueManager.currentSong?.band ?? _queueManager.currentSong?.artistName ?? 'Artista desconhecido',
                 artBytes: _currentArtBytes,
               ),
 
@@ -197,8 +197,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                         _audioPlayer.seek(duration);
                       },
                       barHeight: 5.0,
-                      baseBarColor: Colors.grey.withOpacity(0.2),
-                      bufferedBarColor: Colors.grey.withOpacity(0.4),
+                      baseBarColor: Colors.grey.withValues(alpha:0.2),
+                      bufferedBarColor: Colors.grey.withValues(alpha:0.4),
                       progressBarColor: Colors.greenAccent,
                       thumbColor: Colors.greenAccent,
                     );
@@ -262,7 +262,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                               _audioPlayer.setVolume(value);
                             },
                             activeColor: Colors.greenAccent,
-                            inactiveColor: Colors.grey.withOpacity(0.3),
+                            inactiveColor: Colors.grey.withValues(alpha:0.3),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -412,7 +412,7 @@ class Controls extends StatelessWidget {
                       }
                     }
                   } catch (e) {
-                    print('Erro ao fazer replay: $e');
+                    dev.log('Erro ao fazer replay: $e');
                   }
                 },
               );

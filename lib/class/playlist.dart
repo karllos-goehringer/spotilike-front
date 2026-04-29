@@ -21,4 +21,7 @@ class Playlist {
       songs: songsJson.map((songJson) => Song.fromJson(songJson)).toList(),
     );
   }  
+  int get length {
+    return songs.length;  
+  }
 }

@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'album.dart';
 import 'playlist.dart';
 import 'song.dart';
+import 'dart:developer' as dev;
 
 class LocalStorage {
   static const String _tokenKey = 'auth_token';
@@ -16,7 +17,7 @@ class LocalStorage {
       final prefs = await SharedPreferences.getInstance();
       return await prefs.setString(_tokenKey, token);
     } catch (e) {
-      print('Erro ao salvar token: $e');
+      dev.log('Erro ao salvar token: $e');
       return false;
     }
   }
@@ -27,7 +28,7 @@ class LocalStorage {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getString(_tokenKey);
     } catch (e) {
-      print('Erro ao recuperar token: $e');
+      dev.log('Erro ao recuperar token: $e');
       return null;
     }
   }
@@ -38,7 +39,7 @@ class LocalStorage {
       final prefs = await SharedPreferences.getInstance();
       return await prefs.remove(_tokenKey);
     } catch (e) {
-      print('Erro ao remover token: $e');
+      dev.log('Erro ao remover token: $e');
       return false;
     }
   }

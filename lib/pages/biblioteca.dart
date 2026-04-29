@@ -6,6 +6,8 @@ import '../controller/controller_playlist.dart';
 import 'playlist.dart';
 
 class BibliotecaPage extends StatefulWidget {
+  const BibliotecaPage({super.key});
+
   @override
   _BibliotecaPageState createState() => _BibliotecaPageState();
 }
@@ -133,6 +135,8 @@ class _BibliotecaPageState extends State<BibliotecaPage> {
                     description: description,
                     image: selectedImage,
                   );
+                  if (!mounted) return;
+
                   if (newPlaylist != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Playlist criada com sucesso!')),
@@ -144,7 +148,7 @@ class _BibliotecaPageState extends State<BibliotecaPage> {
                     );
                   }
                 }
-                Navigator.of(context).pop();
+                if (mounted) Navigator.of(context).pop();
                 _nameController.clear();
                 _descriptionController.clear();
                 setState(() {

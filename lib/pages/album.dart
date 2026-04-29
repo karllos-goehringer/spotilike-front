@@ -90,8 +90,11 @@ class _AlbumPageState extends State<AlbumPage> {
                         final success = await PlaylistController.addSongPlaylist(
                           playlist.id,
                           int.parse(song.id),
+                          playlist.length
                         );
-                        Navigator.pop(context);
+                        if (!mounted) return;
+
+                        Navigator.of(context).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(success 

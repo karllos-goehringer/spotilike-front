@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'localStorage.dart';
-
+import 'local_storage.dart';
+import 'dart:developer' as dev;
 class ApiParams {
   static const String apiBaseUrl = 'http://127.0.0.1:8000';
   final String mediaBaseUrl = '${ApiParams.apiBaseUrl}/media/';
@@ -30,7 +30,7 @@ class ApiParams {
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty || response.body == 'null') {
-          print('❌ Resposta de autenticação vazia');
+          dev.log('❌ Resposta de autenticação vazia');
           return null;
         }
 
@@ -43,19 +43,19 @@ class ApiParams {
         if (token != null) {
           // Armazenar token no localStorage para persistência
           await _storage.saveToken(token!);
-          print('Token autenticado: $token');
+          dev.log('Token autenticado: $token');
           return token;
         } else {
-          print('Token não encontrado na resposta');
+          dev.log('Token não encontrado na resposta');
           return null;
         }
       } else {
-        print('Erro na autenticação: ${response.statusCode}');
-        print('Resposta: ${response.body}');
+        dev.log('Erro na autenticação: ${response.statusCode}');
+        dev.log('Resposta: ${response.body}');
         return null;
       }
     } catch (e) {
-      print('Erro ao autenticar: $e');
+      dev.log('Erro ao autenticar: $e');
       return null;
     }
   }
@@ -93,7 +93,7 @@ class ApiParams {
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty || response.body == 'null') {
-          print('❌ Resposta de autenticação vazia');
+          dev.log('❌ Resposta de autenticação vazia');
           return null;
         }
 
@@ -104,18 +104,18 @@ class ApiParams {
         
         if (token != null) {
           await _storage.saveToken(token!);
-          print('Token autenticado: $token');
+          dev.log('Token autenticado: $token');
           return token;
         } else {
-          print('Token não encontrado na resposta');
+          dev.log('Token não encontrado na resposta');
           return null;
         }
       } else {
-        print('Erro na autenticação: ${response.statusCode}');
+        dev.log('Erro na autenticação: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Erro ao autenticar: $e');
+      dev.log('Erro ao autenticar: $e');
       return null;
     }
   }
@@ -160,11 +160,11 @@ class ApiParams {
         final json = jsonDecode(responseData);
         return json['url'] ?? json['image_url'];
       } else {
-        print('Erro upload: ${response.statusCode}');
+        dev.log('Erro upload: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Erro upload: $e');
+      dev.log('Erro upload: $e');
       return null;
     }
   }

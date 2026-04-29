@@ -2,12 +2,11 @@ import 'package:http/http.dart' as http;
 import 'package:spotilike_front/class/api_params.dart';
 import 'package:spotilike_front/class/song.dart';
 import 'dart:typed_data';
-
+import 'dart:developer' as dev;
 class MusicController {
   static const String mediaBaseUrl = ApiParams.apiBaseUrl;
 
   static Future<Uint8List?> getMusicFile(String fileUri) async {
-    print(fileUri);
     try {
       final headers = await ApiParams.obterHeaders();
       final url = '$mediaBaseUrl$fileUri';
@@ -17,21 +16,21 @@ class MusicController {
       );
 
       if (response.statusCode == 200) {
-        print('✅ Arquivo de música obtido com sucesso!');
+        dev.log('✅ Arquivo de música obtido com sucesso!');
         return response.bodyBytes;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else if (response.statusCode == 404) {
-        print('❌ Erro 404: Arquivo não encontrado');
+        dev.log('❌ Erro 404: Arquivo não encontrado');
         return null;
       } else {
-        print('❌ Erro ao baixar arquivo: ${response.statusCode}');
+        dev.log('❌ Erro ao baixar arquivo: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return null;
     }
   }
@@ -62,17 +61,17 @@ class MusicController {
       );
 
       if (response.statusCode == 200) {
-        print('✅ Arquivo disponível: $fileUri');
+        dev.log('✅ Arquivo disponível: $fileUri');
         return true;
       } else if (response.statusCode == 404) {
-        print('❌ Arquivo não encontrado: $fileUri');
+        dev.log('❌ Arquivo não encontrado: $fileUri');
         return false;
       } else {
-        print('⚠️ Status desconhecido: ${response.statusCode}');
+        dev.log('⚠️ Status desconhecido: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('❌ Erro ao verificar disponibilidade: $e');
+      dev.log('❌ Erro ao verificar disponibilidade: $e');
       return false;
     }
   }

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:spotilike_front/class/api_params.dart';
 import 'package:spotilike_front/class/album.dart';
 import 'dart:typed_data';
-
+import 'dart:developer' as dev;
 class ControllerAlbum {
   static const String apiBaseUrl = ApiParams.apiBaseUrl;
 
@@ -34,18 +34,18 @@ class ControllerAlbum {
             .map((albumJson) => Album.fromJson(albumJson))
             .toList();
 
-        print('✅ ${albums.length} álbuns carregados');
+        dev.log('✅ ${albums.length} álbuns carregados');
         return albums;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else {
-        print('❌ Erro ao carregar álbuns: ${response.statusCode}');
+        dev.log('❌ Erro ao carregar álbuns: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return null;
     }
   }
@@ -71,21 +71,21 @@ class ControllerAlbum {
             .map((albumJson) => Album.fromJson(albumJson))
             .toList();
 
-        print('✅ ${albums.length} álbuns do gênero "$genre" carregados');
+        dev.log('✅ ${albums.length} álbuns do gênero "$genre" carregados');
         return albums;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else if (response.statusCode == 404) {
-        print('⚠️ Nenhum álbum encontrado para o gênero: $genre');
+        dev.log('⚠️ Nenhum álbum encontrado para o gênero: $genre');
         return [];
       } else {
-        print('❌ Erro ao carregar álbuns: ${response.statusCode}');
+        dev.log('❌ Erro ao carregar álbuns: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return null;
     }
   }
@@ -116,26 +116,26 @@ class ControllerAlbum {
       // Garante que espaços e caracteres especiais na URL sejam codificados
       final uri = Uri.parse(url);
 
-      print('📥 Obtendo arte do álbum: $albumImage');
+      dev.log('📥 Obtendo arte do álbum: $albumImage');
 
       final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
-        print('✅ Arte do álbum obtida com sucesso!');
+        dev.log('✅ Arte do álbum obtida com sucesso!');
         return response.bodyBytes;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else if (response.statusCode == 404) {
-        print('⚠️ Imagem do álbum não encontrada: $albumImage');
+        dev.log('⚠️ Imagem do álbum não encontrada: $albumImage');
         return null;
       } else {
-        print('❌ Erro ao carregar imagem: ${response.statusCode}');
+        dev.log('❌ Erro ao carregar imagem: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return null;
     }
   }
@@ -161,18 +161,18 @@ class ControllerAlbum {
             .map((albumJson) => Album.fromJson(albumJson))
             .toList();
 
-        print('✅ ${albums.length} álbuns encontrados para "$searchTerm"');
+        dev.log('✅ ${albums.length} álbuns encontrados para "$searchTerm"');
         return albums;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else {
-        print('❌ Erro na busca: ${response.statusCode}');
+        dev.log('❌ Erro na busca: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return null;
     }
   }
@@ -189,7 +189,7 @@ class ControllerAlbum {
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty || response.body == 'null') {
-          print('❌ Detalhes do álbum: Resposta vazia');
+          dev.log('❌ Detalhes do álbum: Resposta vazia');
           return null;
         }
 
@@ -199,21 +199,21 @@ class ControllerAlbum {
 
         final album = Album.fromJson(jsonResponse);
 
-        print('✅ Detalhes do álbum carregados: ${album.title}');
+        dev.log('✅ Detalhes do álbum carregados: ${album.title}');
         return album;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else if (response.statusCode == 404) {
-        print('❌ Álbum não encontrado: $albumId');
+        dev.log('❌ Álbum não encontrado: $albumId');
         return null;
       } else {
-        print('❌ Erro ao carregar álbum: ${response.statusCode}');
+        dev.log('❌ Erro ao carregar álbum: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
       return null;
     }
   }
@@ -222,7 +222,6 @@ class ControllerAlbum {
     try {
       final headers = await ApiParams.obterHeaders();
 
-      // Requisição dos detalhes do álbum
       final response = await http.get(
         Uri.parse('$getAlbumByIdEndpoint$albumId/'),
         headers: headers,
@@ -231,31 +230,32 @@ class ControllerAlbum {
         Uri.parse('$apiBaseUrl/api/albums/$albumId/get_owner/'),
         headers: headers,
       );
-
-      // Requisição das músicas do álbum
       final responseSongs = await http.get(
         Uri.parse('$getAlbumByIdEndpoint$albumId/songs/'),
         headers: headers,
       );
 
       if (response.statusCode == 200) {
-        if (response.body.isEmpty || response.body == 'null') {
-          print('❌ Detalhes do álbum: Resposta vazia');
-          return null;
-        }
-        final jsonResponseOwner = jsonDecode(responseOwner.body);
         final jsonResponse = jsonDecode(response.body);
-
-        // Verificamos se a requisição das músicas também deu certo
+        
+        String artistName = 'Artista Desconhecido';
+        if (responseOwner.statusCode == 200) {
+          try {
+            final jsonResponseOwner = jsonDecode(responseOwner.body);
+            if (jsonResponseOwner['data'] != null && jsonResponseOwner['data'].isNotEmpty) {
+              artistName = jsonResponseOwner['data'][0]['name'];
+            }
+          } catch (e) {
+            dev.log('⚠️ Erro ao processar owner: $e');
+          }
+        }
         if (responseSongs.statusCode == 200) {
           final jsonSongsResponse = jsonDecode(responseSongs.body);
 
-         
           jsonResponse['songs'] = jsonSongsResponse;
-          String artistName = jsonResponseOwner['data'][0]['name'];
           jsonResponse['owner'] = artistName;
         } else {
-          print(
+          dev.log(
             '⚠️ Músicas não encontradas ou erro: ${responseSongs.statusCode}',
           );
           jsonResponse['songs'] = []; // Garante que a lista não venha nula
@@ -264,18 +264,54 @@ class ControllerAlbum {
         if (jsonResponse is! Map<String, dynamic>) return null;
 
         final album = Album.fromJson(jsonResponse);
-        print('✅ Detalhes do álbum carregados: ${album.title}');
+        dev.log('✅ Detalhes do álbum carregados: ${album.title}');
         return album;
       } else if (response.statusCode == 401) {
-        print('❌ Erro 401: Token expirado ou inválido');
+        dev.log('❌ Erro 401: Token expirado ou inválido');
         await ApiParams.limparToken();
         return null;
       } else {
-        print('❌ Erro ao carregar álbum: ${response.statusCode}');
+        dev.log('❌ Erro ao carregar álbum: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('❌ Erro ao fazer requisição: $e');
+      dev.log('❌ Erro ao fazer requisição: $e');
+      return null;
+    }
+  }
+  static Future<List<Album>?> getAlbumsByBandId(int bandId, String typeBand, String owner) async {
+    try {
+
+      final headers = await ApiParams.obterHeaders();
+      var finalResponse;
+      if(typeBand == 'artist'){
+        final response = await http.get(
+        Uri.parse('$apiBaseUrl/api/artists/$bandId/albums/'),
+        headers: headers,
+        );
+        finalResponse = response;
+      }else{
+        final response = await http.get(
+        Uri.parse('$apiBaseUrl/api/bands/$bandId/albums/'),
+        headers: headers,
+        );
+        finalResponse = response;
+      }
+      if (finalResponse.statusCode == 200) {
+        //passar o owner pro album
+        final jsonResponse = jsonDecode(finalResponse.body);
+        jsonResponse.forEach((album) => album['owner'] = owner);
+        final List<Album> albums = (jsonResponse as List)
+            .map((albumJson) => Album.fromJson(albumJson))
+            .toList();
+        dev.log('✅ ${albums.length} álbuns carregados');
+        return albums;
+      } else {
+        dev.log('❌ Erro ao carregar álbuns: ${finalResponse.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      dev.log('❌ Erro ao fazer requisição: $e');
       return null;
     }
   }
