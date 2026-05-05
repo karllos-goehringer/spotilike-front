@@ -47,6 +47,12 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
     _loadCurrentSongArt();
   }
 
+  @override
+  void dispose() {
+    _audioPlayer.dispose(); // Encerra o player e libera os recursos ao sair da página
+    super.dispose();
+  }
+
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
@@ -103,13 +109,16 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
   Future<void> _loadNextSong() async {
     final nextSong = _queueManager.next();
     if (nextSong != null) {
+      // Atualiza a UI imediatamente para dar feedback ao usuário
+      if (mounted) setState(() {}); 
+      
       try {
+        await _audioPlayer.stop(); // Para o áudio atual imediatamente
         final streamUrl = await nextSong.getStreamUrl();
         if (streamUrl != null) {
-          // Primeiro carregamos a arte e limpamos o estado
-          _loadCurrentSongArt(); 
+          await _loadCurrentSongArt(); 
           await _audioPlayer.setUrl(streamUrl);
-          if (mounted) setState(() {});
+          _audioPlayer.play(); // Inicia a nova música
         }
       } catch (e) {
         dev.log('❌ Erro ao carregar próxima música: $e');
@@ -123,24 +132,27 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
   Future<void> _loadPreviousSong() async {
     final prevSong = _queueManager.previous();
     if (prevSong != null) {
+      // Atualiza a UI imediatamente (títulos/icones)
+      if (mounted) setState(() {});
+
       try {
+        await _audioPlayer.stop(); // Para a música atual
         final streamUrl = await prevSong.getStreamUrl();
         if (streamUrl != null) {
-          _loadCurrentSongArt();
+          await _loadCurrentSongArt(); // Aguarda a troca da imagem
           await _audioPlayer.setUrl(streamUrl);
           if (mounted) setState(() {});
+          _audioPlayer.play(); // Inicia o som da música anterior
         }
       } catch (e) {
         dev.log('❌ Erro ao carregar música anterior: $e');
       }
+    } else {
+      dev.log('⏹️ Início da fila');
+      await _audioPlayer.stop();
     }
   }
 
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -193,14 +205,17 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
                       progress: positionData?.position ?? Duration.zero,
                       buffered: positionData?.bufferedPosition ?? Duration.zero,
                       total: positionData?.duration ?? Duration.zero,
-                      onSeek: (duration) {
-                        _audioPlayer.seek(duration);
+                      onSeek: (duration) async {
+                        await _audioPlayer.seek(duration);
                       },
+                      thumbRadius: 8.0,
+                      thumbColor: Colors.greenAccent,
+                      thumbGlowRadius: 12.0,
+                      thumbGlowColor: Colors.white,
                       barHeight: 5.0,
                       baseBarColor: Colors.grey.withValues(alpha:0.2),
                       bufferedBarColor: Colors.grey.withValues(alpha:0.4),
                       progressBarColor: Colors.greenAccent,
-                      thumbColor: Colors.greenAccent,
                     );
                   },
                 ),
@@ -403,14 +418,8 @@ class Controls extends StatelessWidget {
                 color: Colors.greenAccent,
                 onPressed: () async {
                   try {
-                    final song = queueManager.currentSong;
-                    if (song != null) {
-                      final streamUrl = await song.getStreamUrl();
-                      if (streamUrl != null) {
-                        await audioPlayer.setUrl(streamUrl);
-                        await audioPlayer.play();
-                      }
-                    }
+                    await audioPlayer.seek(Duration.zero);
+                    await audioPlayer.play();
                   } catch (e) {
                     dev.log('Erro ao fazer replay: $e');
                   }

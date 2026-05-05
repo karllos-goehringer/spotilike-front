@@ -6,10 +6,21 @@ import 'dart:developer' as dev;
 class MusicController {
   static const String mediaBaseUrl = ApiParams.apiBaseUrl;
 
+  /// Método auxiliar para garantir que a URL seja construída corretamente com barras
+  static String _buildUrl(String fileUri) {
+    if (fileUri.startsWith('http')) return fileUri;
+
+    String cleanPath = fileUri.startsWith('/') ? fileUri.substring(1) : fileUri;
+    
+    return cleanPath.startsWith('media/')
+        ? '$mediaBaseUrl/$cleanPath'
+        : '$mediaBaseUrl/media/$cleanPath';
+  }
+
   static Future<Uint8List?> getMusicFile(String fileUri) async {
     try {
       final headers = await ApiParams.obterHeaders();
-      final url = '$mediaBaseUrl$fileUri';
+      final url = _buildUrl(fileUri);
       final response = await http.get(
         Uri.parse(url),
         headers: headers,
@@ -39,10 +50,19 @@ class MusicController {
     return await getMusicFile(song.fileUri);
   }
   /// Inclui o token na URL para autenticação
+
+  /// Retorna a URL de stream incluindo o token de autenticação como query parameter.
+  /// Isso é necessário se o seu backend Django protege os arquivos de mídia.
   static Future<String?> getMusicStreamUrl(String fileUri) async {
-      final url = '$mediaBaseUrl$fileUri';  
-      return url;
-      }
+    final url = _buildUrl(fileUri);
+    final token = await ApiParams.obterToken();
+
+    if (token == null) return url;
+
+    // Verifica se já existe um query parameter para usar ? ou &
+    final separator = url.contains('?') ? '&' : '?';
+    return '$url${separator}token=$token';
+  }
 
   ///Obter URL de stream de um objeto Song
   static Future<String?> getMusicStreamUrlFromSong(Song song) async {
@@ -53,7 +73,7 @@ class MusicController {
   static Future<bool> checkMusicAvailability(String fileUri) async {
     try {
       final headers = await ApiParams.obterHeaders();
-      final url = '$mediaBaseUrl$fileUri';
+      final url = _buildUrl(fileUri);
 
       final response = await http.head(
         Uri.parse(url),

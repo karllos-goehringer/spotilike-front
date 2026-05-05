@@ -283,7 +283,7 @@ class ControllerAlbum {
     try {
 
       final headers = await ApiParams.obterHeaders();
-      var finalResponse;
+      http.Response finalResponse;
       if(typeBand == 'artist'){
         final response = await http.get(
         Uri.parse('$apiBaseUrl/api/artists/$bandId/albums/'),
