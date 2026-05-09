@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:spotilike_front/controller/controller_user.dart';
 import '../class/playlist.dart';
 import '../controller/controller_playlist.dart';
+import 'login.dart';
+import 'perfil_page.dart';
 import 'playlist.dart';
 
 class BibliotecaPage extends StatefulWidget {
@@ -33,18 +37,59 @@ class _BibliotecaPageState extends State<BibliotecaPage> {
   }
 
   Future<void> _loadPlaylists() async {
-    const int userID = 2; // Use o ID que veio do login: {"id":2}
-    final result = await PlaylistController.getAllPlaylistUser(userID);
-    if (result != null) {
-      setState(() {
-        playlists = result;
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-      // Tratar erro, exibir snackbar ou algo
+    if (ControllerUser.currentUser != null) {
+      final result = await PlaylistController.getAllPlaylistUser(ControllerUser.currentUser!.id);
+      if (result != null) {
+        setState(() {
+          playlists = result;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _goToProfile() async {
+    if (ControllerUser.currentUser != null) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => UserPage(user: ControllerUser.currentUser!)),
+      );
+      _loadPlaylists(); // Recarrega para refletir possíveis mudanças
+    }
+  }
+
+  void _handleLogout() async {
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sair', style: TextStyle(color: Colors.redAccent)),
+        backgroundColor: const Color.fromARGB(255, 30, 30, 30),
+        content: const Text('Deseja realmente fazer logoff?', style: TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Não', style: TextStyle(color: Colors.white70)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sim', style: TextStyle(color: Colors.white70)),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await ControllerUser.logout();
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (route) => false,
+        );
+      }
     }
   }
 
@@ -128,7 +173,7 @@ class _BibliotecaPageState extends State<BibliotecaPage> {
                 final name = _nameController.text.trim();
                 final description = _descriptionController.text.trim();
                 if (name.isNotEmpty) {
-                  const int userID = 1; // Placeholder
+                  final int userID = ControllerUser.currentUser?.id ?? 1;
                   final newPlaylist = await PlaylistController.createPlaylist(
                     userID: userID,
                     name: name,
@@ -195,15 +240,90 @@ class _BibliotecaPageState extends State<BibliotecaPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: kToolbarHeight + 20),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      'Biblioteca',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Biblioteca',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        PopupMenuButton<String>(
+                          offset: const Offset(100, 50),
+                          color: const Color.fromARGB(255, 45, 45, 45),
+                          onSelected: (value) {
+                            if (value == 'perfil') _goToProfile();
+                            if (value == 'logout') _handleLogout();
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'perfil',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.person, color: Colors.white70),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Meu Perfil',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'logout',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.logout, color: Colors.redAccent),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Sair',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.greenAccent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: CircleAvatar(
+                              radius: 35,
+                              backgroundColor: Colors.grey[800],
+                              child: FutureBuilder<Uint8List?>(
+                                future: ControllerUser.currentUser != null &&
+                                        ControllerUser.currentUser!.profileImageUrl != null
+                                    ? ControllerUser.getProfileImageUrl()
+                                    : Future.value(null),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData && snapshot.data != null) {
+                                    return ClipOval(
+                                      child: Image.memory(
+                                        snapshot.data!,
+                                        width: 64,
+                                        height: 64,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    );
+                                  }
+                                  return const Icon(
+                                    Icons.person,
+                                    size: 24,
+                                    color: Colors.white54,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),

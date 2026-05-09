@@ -4,6 +4,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import '../class/song.dart';
 import '../controller/queue_manager.dart';
+import '../controller/controller_music.dart';
 import '../controller/controller_album.dart';
 import 'dart:typed_data';
 import 'dart:developer' as dev;
@@ -34,22 +35,38 @@ class MusicPlayerPage extends StatefulWidget {
 }
 
 class _MusicPlayerPageState extends State<MusicPlayerPage> {
-  late AudioPlayer _audioPlayer;
-  late QueueManager _queueManager;
   Uint8List? _currentArtBytes;
+  
+  // Getters para facilitar o acesso à instância global
+  AudioPlayer get _audioPlayer => MusicController.player;
+  QueueManager get _queueManager => MusicController.queueManager!;
 
   @override
   void initState() {
     super.initState();
-    _queueManager = QueueManager.fromSongs(widget.songs);
-    _queueManager.jumpToIndex(widget.initialIndex);
-    _initializeAudio();
+    
+    // Se for uma nova lista de músicas ou nada estiver tocando, inicializa
+    if (MusicController.queueManager == null || 
+        _isNewPlaylist(widget.songs)) {
+      MusicController.queueManager = QueueManager.fromSongs(widget.songs);
+      MusicController.queueManager!.jumpToIndex(widget.initialIndex);
+      MusicController.currentAlbumTitle = widget.albumTitle;
+      MusicController.currentAlbumArtUri = widget.albumArtUri;
+      _initializeAudio();
+    }
+    
     _loadCurrentSongArt();
+  }
+
+  bool _isNewPlaylist(List<Song> newSongs) {
+    if (MusicController.queueManager == null) return true;
+    if (newSongs.length != MusicController.queueManager!.queue.length) return true;
+    return newSongs.first.id != MusicController.queueManager!.queue.first.id;
   }
 
   @override
   void dispose() {
-    _audioPlayer.dispose(); // Encerra o player e libera os recursos ao sair da página
+    // Removido o dispose para manter a música tocando globalmente
     super.dispose();
   }
 
@@ -71,18 +88,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
       );
 
   Future<void> _initializeAudio() async {
-    _audioPlayer = AudioPlayer();
     if (_queueManager.currentSong != null) {
-      try {
-        final streamUrl = await _queueManager.currentSong!.getStreamUrl();
-        if (streamUrl != null) {
-          await _audioPlayer.setUrl(streamUrl);
-        } else {
-          dev.log('❌ Erro ao obter URL de stream');
-        }
-      } catch (e) {
-        dev.log('❌ Erro ao inicializar áudio: $e');
-      }
+      await MusicController.loadSong(_queueManager.currentSong!);
     }
   }
 
@@ -92,7 +99,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
     // Define qual URI usar: a da música ou a do álbum (fallback)
     final artPath = (song != null && song.albumImg.isNotEmpty) 
         ? song.albumImg 
-        : widget.albumArtUri;
+        : (MusicController.currentAlbumArtUri ?? '');
 
     if (artPath.isNotEmpty) {
       if (mounted) setState(() => _currentArtBytes = null); // Limpa imagem anterior
@@ -107,49 +114,18 @@ class _MusicPlayerPageState extends State<MusicPlayerPage> {
   }
 
   Future<void> _loadNextSong() async {
-    final nextSong = _queueManager.next();
-    if (nextSong != null) {
-      // Atualiza a UI imediatamente para dar feedback ao usuário
-      if (mounted) setState(() {}); 
-      
-      try {
-        await _audioPlayer.stop(); // Para o áudio atual imediatamente
-        final streamUrl = await nextSong.getStreamUrl();
-        if (streamUrl != null) {
-          await _loadCurrentSongArt(); 
-          await _audioPlayer.setUrl(streamUrl);
-          _audioPlayer.play(); // Inicia a nova música
-        }
-      } catch (e) {
-        dev.log('❌ Erro ao carregar próxima música: $e');
-      }
-    } else {
-      dev.log('⏹️ Fim da fila');
-      await _audioPlayer.stop();
+    await MusicController.playNext();
+    if (mounted) {
+      setState(() {});
+      _loadCurrentSongArt();
     }
   }
 
   Future<void> _loadPreviousSong() async {
-    final prevSong = _queueManager.previous();
-    if (prevSong != null) {
-      // Atualiza a UI imediatamente (títulos/icones)
-      if (mounted) setState(() {});
-
-      try {
-        await _audioPlayer.stop(); // Para a música atual
-        final streamUrl = await prevSong.getStreamUrl();
-        if (streamUrl != null) {
-          await _loadCurrentSongArt(); // Aguarda a troca da imagem
-          await _audioPlayer.setUrl(streamUrl);
-          if (mounted) setState(() {});
-          _audioPlayer.play(); // Inicia o som da música anterior
-        }
-      } catch (e) {
-        dev.log('❌ Erro ao carregar música anterior: $e');
-      }
-    } else {
-      dev.log('⏹️ Início da fila');
-      await _audioPlayer.stop();
+    await MusicController.playPrevious();
+    if (mounted) {
+      setState(() {});
+      _loadCurrentSongArt();
     }
   }
 

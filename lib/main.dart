@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spotilike_front/pages/home.dart';
 import 'pages/biblioteca.dart';
 import 'pages/login.dart';
+import 'pages/mini_player.dart'; // Importe o MiniPlayer
 import 'pages/search.dart';
 
 void main() {
@@ -45,28 +46,42 @@ class _MainNavigatorState extends State<MainNavigator> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Pesquisar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_music),
-            label: 'Biblioteca',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.greenAccent,
-        unselectedItemColor: Colors.white70,
-        backgroundColor: const Color.fromARGB(255, 22, 19, 19),
-        onTap: _onItemTapped,
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: Container(
+        color: const Color.fromARGB(255, 22, 19, 19),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const MiniPlayer(), // O mini-player agora flutua com margens
+            BottomNavigationBar(
+              elevation: 0, // Remove sombra interna para fundir com o container
+              backgroundColor: Colors.transparent,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.search),
+                  label: 'Pesquisar',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.library_music),
+                  label: 'Biblioteca',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.greenAccent,
+              unselectedItemColor: Colors.white70,
+              onTap: _onItemTapped,
+            ),
+          ],
+        ),
       ),
     );
   }
+  
 }

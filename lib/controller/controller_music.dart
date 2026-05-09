@@ -3,8 +3,64 @@ import 'package:spotilike_front/class/api_params.dart';
 import 'package:spotilike_front/class/song.dart';
 import 'dart:typed_data';
 import 'dart:developer' as dev;
+import 'package:just_audio/just_audio.dart';
+import 'queue_manager.dart';
+
 class MusicController {
   static const String mediaBaseUrl = ApiParams.apiBaseUrl;
+
+  // Instâncias globais para persistência
+  static final AudioPlayer player = AudioPlayer();
+  static QueueManager? queueManager;
+  
+  // Metadados do contexto atual (Playlist/Álbum)
+  static String? currentAlbumTitle;
+  static String? currentAlbumArtUri;
+
+  /// Carrega uma música no player global
+  static Future<void> loadSong(Song song) async {
+    try {
+      final streamUrl = await song.getStreamUrl();
+      if (streamUrl == null) return;
+
+      // Obtém o tag (ID) da música que está carregada no momento
+      final currentTag = player.sequenceState?.currentSource?.tag;
+
+      // Só define a URL se for uma música diferente para não resetar o 00:00
+      if (currentTag != song.id) {
+        await player.stop(); // Garante limpeza antes da nova fonte
+        await player.setAudioSource(
+          AudioSource.uri(Uri.parse(streamUrl), tag: song.id),
+        );
+      }
+    } catch (e) {
+      dev.log('❌ Erro ao carregar música: $e');
+    }
+  }
+
+  /// Avança para a próxima música na fila
+  static Future<void> playNext() async {
+    if (queueManager == null) return;
+    final nextSong = queueManager!.next();
+    if (nextSong != null) {
+      await loadSong(nextSong);
+      player.play();
+    } else {
+      await player.stop();
+    }
+  }
+
+  /// Volta para a música anterior
+  static Future<void> playPrevious() async {
+    if (queueManager == null) return;
+    final prevSong = queueManager!.previous();
+    if (prevSong != null) {
+      await loadSong(prevSong);
+      player.play();
+    } else {
+      await player.stop();
+    }
+  }
 
   /// Método auxiliar para garantir que a URL seja construída corretamente com barras
   static String _buildUrl(String fileUri) {
