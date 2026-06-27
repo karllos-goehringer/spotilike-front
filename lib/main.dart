@@ -55,9 +55,9 @@ class _MainNavigatorState extends State<MainNavigator> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const MiniPlayer(), // O mini-player agora flutua com margens
+            const MiniPlayer(), 
             BottomNavigationBar(
-              elevation: 0, // Remove sombra interna para fundir com o container
+              elevation: 0, 
               backgroundColor: Colors.transparent,
               items: const <BottomNavigationBarItem>[
                 BottomNavigationBarItem(

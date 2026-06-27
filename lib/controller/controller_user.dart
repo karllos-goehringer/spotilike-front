@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 import 'dart:developer' as dev;
-
-import 'package:flutter/material.dart';
 import 'package:spotilike_front/class/api_params.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';

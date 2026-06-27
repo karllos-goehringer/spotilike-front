@@ -26,7 +26,7 @@ class ApiParams {
           'username': apiUser,
           'password': apiPassword,
         }),
-      );
+      ).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty || response.body == 'null') {
@@ -56,6 +56,7 @@ class ApiParams {
       }
     } catch (e) {
       dev.log('Erro ao autenticar: $e');
+      dev.log('❌ Falha crítica de rede/conexão ao IP 192.168.0.200: $e');
       return null;
     }
   }
@@ -89,7 +90,7 @@ class ApiParams {
           'username': username,
           'password': password,
         }),
-      );
+      ).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty || response.body == 'null') {

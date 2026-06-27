@@ -24,7 +24,7 @@ class MusicController {
       if (streamUrl == null) return;
 
       // Obtém o tag (ID) da música que está carregada no momento
-      final currentTag = player.sequenceState?.currentSource?.tag;
+      final currentTag = player.sequenceState.currentSource?.tag;
 
       // Só define a URL se for uma música diferente para não resetar o 00:00
       if (currentTag != song.id) {
